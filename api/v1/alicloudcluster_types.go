@@ -74,6 +74,8 @@ type AlicloudClusterStatus struct {
 // AlicloudCluster is the Schema for the alicloudclusters API
 // +kubebuilder:printcolumn:name="VPCID",type="string",JSONPath=".status.vpc.VpcId",description="VPC ID"
 // +kubebuilder:printcolumn:name="VSwitchID",type="string",JSONPath=".status.vswitch.VSwitchId",description="VSwitch ID"
+// +kubebuilder:printcolumn:name="ClusterID",type="string",JSONPath=".status.cluster_id",description="Cluster ID"
+// +kubebuilder:printcolumn:name="Phase",type="string",JSONPath=".status.phase",description="Lifecycle Phase"
 type AlicloudCluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

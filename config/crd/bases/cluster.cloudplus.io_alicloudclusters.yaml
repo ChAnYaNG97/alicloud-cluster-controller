@@ -17,6 +17,14 @@ spec:
     description: VSwitch ID
     name: VSwitchID
     type: string
+  - JSONPath: .status.cluster_id
+    description: Cluster ID
+    name: ClusterID
+    type: string
+  - JSONPath: .status.phase
+    description: Lifecycle Phase
+    name: Phase
+    type: string
   group: cluster.cloudplus.io
   names:
     kind: AlicloudCluster

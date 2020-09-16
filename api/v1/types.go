@@ -150,6 +150,32 @@ type RuntimeType struct {
 	Version string `json:"version,omitempty"`
 }
 
+type ScaleSpec struct {
+	ClusterId       string           `json:"ClusterId"`
+	Count           int              `json:"count"`
+	WorkerDataDisk  bool             `json:"worker_data_disk"`
+	WorkerDataDisks []WorkerDataDisk `json:"worker_data_disks"`
+
+	WorkerInstanceTypes []string `json:"worker_instance_types"`
+
+	LoginPassword string   `json:"login_password,omitempty"`
+	KeyPair       string   `json:"key_pair,omitempty"`
+	VSwitchIds    []string `json:"vswitch_ids,omitempty"`
+
+	WorkerSystemDiskCategory string `json:"worker_system_disk_category,omitempty"`
+	WorkerSystemDiskSize     int    `json:"worker_system_disk_size,omitempty"`
+}
+type WorkerDataDisk struct {
+	//category：数据盘类型。取值范围：
+	//cloud：普通云盘。
+	//cloud_efficiency：高效云盘。
+	//cloud_ssd：SSD云盘。
+	Category string `json:"category,omitempty"`
+	//size：数据盘大小，单位为GiB。
+	Size string `json:"size,omitempty"`
+	//encrypted:是否对数据盘加密，true|false。
+	Encrypted string `json:"encrypted,omitempty"`
+}
 type Vpc struct {
 	VpcId                  string `json:"VpcId" xml:"VpcId"`
 	RegionId               string `json:"RegionId" xml:"RegionId"`

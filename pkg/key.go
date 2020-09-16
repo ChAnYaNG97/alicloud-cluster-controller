@@ -1,6 +1,6 @@
 package pkg
 
 var (
-	AccessKeyId     = "LTAI4GKkgequcn5TukAXhdZx"
-	AccessKeySecret = "gQBBjG9qHZuSIIgF9LxB0h3Cx5VJYz"
+	AccessKeyId     = "LTAI4Fz2SgWkkQviMKWUrzmk"
+	AccessKeySecret = "3RJw39OBg2xlophDczM4odDhbtTOc2"
 )

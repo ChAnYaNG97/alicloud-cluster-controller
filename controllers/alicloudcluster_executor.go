@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"time"
 )
 
 func NewExecutor(
@@ -117,7 +118,6 @@ func (e *Executor) ReconcileVpc() (ctrl.Result, error) {
 	}
 	e.Info("reconcileVpc success")
 	target.DeepCopyInto(&e.cluster.Status.Vpc)
-
 	e.cluster.Spec.Cluster.Vpcid = target.VpcId
 	if err := e.Update(e.ctx, e.cluster); err != nil {
 		return ctrl.Result{}, err
@@ -213,13 +213,19 @@ func (e *Executor) ReconcileCluster() (ctrl.Result, error) {
 		}
 		if cluster.State == "running" {
 			e.cluster.Status.Phase = v1.PhaseRunning
-		}
-
-		if err := e.Update(e.ctx, e.cluster); err != nil {
-			return ctrl.Result{}, err
+			if err := e.Update(e.ctx, e.cluster); err != nil {
+				return ctrl.Result{}, err
+			}
+			return ctrl.Result{}, nil
+		} else {
+			fmt.Println("requeue ", cluster.State)
+			return ctrl.Result{
+				RequeueAfter: 1 * time.Minute,
+			}, nil
 		}
 	case v1.PhaseRunning:
-		//
+		// 判断一下是不是有扩容
+		// 扩容的edit
 	case v1.PhaseScalingOut:
 		//
 	case v1.PhaseRemovingNode:
@@ -235,9 +241,9 @@ func (e *Executor) ReconcileCluster() (ctrl.Result, error) {
 func (e *Executor) ReconcileDelete() (ctrl.Result, error) {
 	e.Logger.Info("ReconcileDelete")
 
-	//if rs, err := e.DeleteCluster(); err != nil {
-	//	return rs, errors.Wrap(err, "DeleteCluster")
-	//}
+	if rs, err := e.DeleteCluster(); err != nil {
+		return rs, errors.Wrap(err, "DeleteCluster")
+	}
 
 	if rs, err := e.DeleteVSwitch(); err != nil {
 		return rs, errors.Wrap(err, "deleteVSwitch")
@@ -315,7 +321,37 @@ func (e *Executor) DeleteVpc() (ctrl.Result, error) {
 	})
 }
 
-//func DeletCluster()
+func (e *Executor) DeleteCluster() (ctrl.Result, error) {
+
+	switch e.cluster.Status.Phase {
+	case v1.PhaseRunning:
+		err := e.clusterCli.Delete(e.cluster.Status.ClusterId)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		e.cluster.Status.Phase = v1.PhaseDeleting
+		if err := e.Update(e.ctx, e.cluster); err != nil {
+			return ctrl.Result{}, err
+		}
+	case v1.PhaseDeleting:
+		cluster, err := e.clusterCli.Describe(e.cluster.Status.ClusterId)
+		if err != nil {
+			return ctrl.Result{}, err
+		}
+		if len(cluster.ClusterId) == 0 {
+			e.cluster.Finalizers = Filter(e.cluster.Finalizers, v1.Finalizer)
+		}
+		if err := e.Update(e.ctx, e.cluster); err != nil {
+			return ctrl.Result{}, err
+		}
+
+	case v1.PhaseScalingOut:
+	case v1.PhaseRemovingNode:
+
+	}
+
+	return ctrl.Result{}, nil
+}
 func Contains(list []string, target string) bool {
 	for _, str := range list {
 		if str == target {

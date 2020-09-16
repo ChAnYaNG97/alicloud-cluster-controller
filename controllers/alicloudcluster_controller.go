@@ -23,6 +23,7 @@ import (
 	"github.com/pkg/errors"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/client-go/tools/record"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -32,6 +33,7 @@ type AlicloudClusterReconciler struct {
 	client.Client
 	Log    logr.Logger
 	Scheme *runtime.Scheme
+	Event  record.EventRecorder
 }
 
 // +kubebuilder:rbac:groups=cluster.cloudplus.io,resources=alicloudclusters,verbs=get;list;watch;create;update;patch;delete
@@ -40,7 +42,6 @@ func (r *AlicloudClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, er
 	ctx := context.Background()
 	logger := r.Log.WithValues("alicloudcluster", req.NamespacedName)
 	// your logic here
-
 	cluster := &clusterv1.AlicloudCluster{}
 
 	if err := r.Get(ctx, req.NamespacedName, cluster); err != nil {
@@ -57,6 +58,7 @@ func (r *AlicloudClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, er
 	if err != nil {
 		logger.Info("new executor error: " + err.Error())
 	}
+
 	if !cluster.DeletionTimestamp.IsZero() {
 		// handle deleted cluster
 		if ret, err := executor.ReconcileDelete(); err != nil {

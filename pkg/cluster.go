@@ -97,4 +97,13 @@ func (c *ClusterClient) Delete(clusterId string) error {
 	return nil
 }
 
+//func (c *ClusterClient) ScaleOut(spec v1.ScaleSpec) error {
+//	logger := c.WithValues("SDKAction", "ScaleOut")
+//	cs.CreateScaleOutClusterRequest()
+//}
+//
+//func (c *ClusterClient) RemoveNodes() error {
+//
+//}
+
 //func (c *ClusterClient) WaitReady()
