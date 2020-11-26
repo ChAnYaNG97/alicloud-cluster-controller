@@ -62,7 +62,7 @@ type AlicloudClusterStatus struct {
 	// Phase
 	Phase string `json:"phase"`
 
-	//NumOfWorker string `json:"number of worker"`
+	NumOfWorker string `json:"worker_number,omitempty"`
 
 	KubeConfig string `json:"kubeconfig"`
 
@@ -76,6 +76,7 @@ type AlicloudClusterStatus struct {
 // +kubebuilder:printcolumn:name="VSwitchID",type="string",JSONPath=".status.vswitch.VSwitchId",description="VSwitch ID"
 // +kubebuilder:printcolumn:name="ClusterID",type="string",JSONPath=".status.cluster_id",description="Cluster ID"
 // +kubebuilder:printcolumn:name="Phase",type="string",JSONPath=".status.phase",description="Lifecycle Phase"
+// +kubebuilder:printcolumn:name="Worker",type="string",JSONPath=".status.worker_number", description="Number of Running Workers"
 type AlicloudCluster struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

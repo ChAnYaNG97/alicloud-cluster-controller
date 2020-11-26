@@ -58,7 +58,6 @@ func (c *ClusterClient) Describe(clusterId string) (*v1.Cluster, error) {
 		resp, err = c.cli.DescribeClusterDetail(req)
 		if err != nil {
 			logger.Info("error: " + err.Error())
-
 		}
 		return errors.Wrap(err, "DescribeClusterDetail")
 
@@ -107,3 +106,25 @@ func (c *ClusterClient) Delete(clusterId string) error {
 //}
 
 //func (c *ClusterClient) WaitReady()
+
+
+func (c *ClusterClient) Kubeconfig(clusterId string) (string, error) {
+	logger := c.WithValues("SDKAction", "KubeConfig")
+	req := cs.CreateDescribeClusterUserKubeconfigRequest()
+	req.Scheme = "http"
+	req.ClusterId = clusterId
+	var resp *cs.DescribeClusterUserKubeconfigResponse
+	if err := retry.Try(retry.DefaultBackOff, func() error {
+		logger.Info("sending delete cluster request")
+		var err error
+		resp, err = c.cli.DescribeClusterUserKubeconfig(req)
+		if err != nil {
+			logger.Info("error: " + err.Error())
+		}
+		return errors.Wrap(err, "DescribeKubeConfig")
+	}); err != nil {
+		return "", err
+	}
+	logger.Info("success", "get kubeconfig for", resp.Config)
+	return resp.Config, nil
+}

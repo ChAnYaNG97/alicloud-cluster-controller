@@ -25,6 +25,10 @@ spec:
     description: Lifecycle Phase
     name: Phase
     type: string
+  - JSONPath: .status.worker
+    description: Running Worker Count
+    name: Worker
+    type: string
   group: cluster.cloudplus.io
   names:
     kind: AlicloudCluster

@@ -8,8 +8,11 @@ import (
 	"fmt"
 	"github.com/go-logr/logr"
 	"github.com/pkg/errors"
+	"log"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -213,6 +216,11 @@ func (e *Executor) ReconcileCluster() (ctrl.Result, error) {
 		}
 		if cluster.State == "running" {
 			e.cluster.Status.Phase = v1.PhaseRunning
+			e.cluster.Status.KubeConfig, err = e.clusterCli.Kubeconfig(clusterId)
+			e.cluster.Status.NumOfWorker = strconv.Itoa(len(e.cluster.Spec.Nodes)) + "/" + strconv.Itoa(len(e.cluster.Spec.Nodes))
+			if err != nil {
+				log.Println("get kube config error")
+			}
 			if err := e.Update(e.ctx, e.cluster); err != nil {
 				return ctrl.Result{}, err
 			}
@@ -335,10 +343,11 @@ func (e *Executor) DeleteCluster() (ctrl.Result, error) {
 		}
 	case v1.PhaseDeleting:
 		cluster, err := e.clusterCli.Describe(e.cluster.Status.ClusterId)
-		if err != nil {
+		if IgnoreClusterNotFound(err) != nil {
+			log.Println("clusterCli return err")
 			return ctrl.Result{}, err
 		}
-		if len(cluster.ClusterId) == 0 {
+		if cluster == nil || len(cluster.ClusterId) == 0 {
 			e.cluster.Finalizers = Filter(e.cluster.Finalizers, v1.Finalizer)
 		}
 		if err := e.Update(e.ctx, e.cluster); err != nil {
@@ -373,4 +382,11 @@ func Filter(list []string, target string) (newList []string) {
 	}
 
 	return
+}
+
+func IgnoreClusterNotFound(err error) error{
+	if strings.Contains(err.Error(), "ErrorClusterNotFound") {
+		return nil
+	}
+	return err
 }
