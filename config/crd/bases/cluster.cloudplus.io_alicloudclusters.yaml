@@ -25,8 +25,8 @@ spec:
     description: Lifecycle Phase
     name: Phase
     type: string
-  - JSONPath: .status.worker
-    description: Running Worker Count
+  - JSONPath: .status.worker_number
+    description: Number of Running Workers
     name: Worker
     type: string
   group: cluster.cloudplus.io
@@ -439,6 +439,8 @@ spec:
               - VpcId
               - ZoneId
               type: object
+            worker_number:
+              type: string
           required:
           - cluster_id
           - kubeconfig

@@ -208,6 +208,9 @@ func (e *Executor) ReconcileCluster() (ctrl.Result, error) {
 		if err := e.Update(e.ctx, e.cluster); err != nil {
 			return ctrl.Result{}, err
 		}
+		return ctrl.Result{
+			RequeueAfter: 1 * time.Second,
+		}, nil
 	case v1.PhaseCreating:
 		clusterId := e.cluster.Status.ClusterId
 		cluster, err := e.clusterCli.Describe(clusterId)
@@ -384,7 +387,7 @@ func Filter(list []string, target string) (newList []string) {
 	return
 }
 
-func IgnoreClusterNotFound(err error) error{
+func IgnoreClusterNotFound(err error) error {
 	if strings.Contains(err.Error(), "ErrorClusterNotFound") {
 		return nil
 	}

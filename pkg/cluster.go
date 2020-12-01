@@ -107,7 +107,6 @@ func (c *ClusterClient) Delete(clusterId string) error {
 
 //func (c *ClusterClient) WaitReady()
 
-
 func (c *ClusterClient) Kubeconfig(clusterId string) (string, error) {
 	logger := c.WithValues("SDKAction", "KubeConfig")
 	req := cs.CreateDescribeClusterUserKubeconfigRequest()
