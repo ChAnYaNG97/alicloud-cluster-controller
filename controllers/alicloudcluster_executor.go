@@ -59,22 +59,17 @@ type Executor struct {
 }
 
 func (e *Executor) ReconcileNormal() (ctrl.Result, error) {
-
 	if !Contains(e.cluster.Finalizers, v1.Finalizer) {
 		e.cluster.Finalizers = append(e.cluster.Finalizers, v1.Finalizer)
 	}
-
 	if rs, err := e.ReconcileVpc(); err != nil {
 		return rs, err
 	}
 	if rs, err := e.ReconcileVSwitch(); err != nil {
 		return rs, err
 	}
-	if rs, err := e.ReconcileCluster(); err != nil {
-		return rs, err
-	}
-	return ctrl.Result{}, nil
-
+	rs, err := e.ReconcileCluster()
+	return rs, err
 }
 
 func (e *Executor) ReconcileVpc() (ctrl.Result, error) {
@@ -209,7 +204,7 @@ func (e *Executor) ReconcileCluster() (ctrl.Result, error) {
 			return ctrl.Result{}, err
 		}
 		return ctrl.Result{
-			RequeueAfter: 1 * time.Second,
+			RequeueAfter: 1 * time.Minute,
 		}, nil
 	case v1.PhaseCreating:
 		clusterId := e.cluster.Status.ClusterId

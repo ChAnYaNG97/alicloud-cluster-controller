@@ -75,7 +75,8 @@ func (r *AlicloudClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, er
 	}
 
 	// handle non-deleted cluster
-	if ret, err := executor.ReconcileNormal(); err != nil {
+	ret, err := executor.ReconcileNormal()
+	if err != nil {
 		logger.Error(err, "ReconcileNormal error")
 		return ret, errors.Wrap(err, "ReconcileNormal error")
 	}
@@ -84,7 +85,7 @@ func (r *AlicloudClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, er
 		return ctrl.Result{}, errors.Wrap(err, "Update")
 	}
 
-	return ctrl.Result{}, nil
+	return ret, nil
 
 	//executor, err := NewExecutor()
 
